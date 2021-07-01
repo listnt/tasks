@@ -14,35 +14,19 @@ import (
 )
 
 //воркер
-func worker(id int, jobs <-chan int, results chan<- int, done chan bool, wg *sync.WaitGroup) {
+func worker(id int, jobs <-chan int, results chan<- int, wg *sync.WaitGroup) {
 	defer wg.Done() // уменьшаем счетчик на 1
-	for {
-		select { //слушаем канал с данными
-		case j, ok := <-jobs:
-			//этот if нужен, потому, что порой селект читает
-			//пустые данные из закрытого канал. Ключевое слово ПУСТЫЕ
-			if !ok { //если канал закрыт
-				//брекаем switch и ждем пока случай выберет другой кейс
-				break
-			}
-			//some actions
-			fmt.Println("worker", id, "started  job:", j)
-			time.Sleep(2 * time.Second)
-			results <- j * 2
-			fmt.Println("worker", id, "finished job:", j)
-		case <-done: //если получили сигнал на завершение
-			for j := range jobs {
-				//обрабатываем оставшиеся работу
-				//some actions
-				fmt.Println("worker", id, "started  job:", j)
-				time.Sleep(time.Second)
-				results <- j * 2
-				fmt.Println("worker", id, "finished job:", j)
-			}
-			return
-		}
+	for j := range jobs {
+		//обрабатываем работу
+		//some actions
+		fmt.Println("worker", id, "started  job:", j)
+		time.Sleep(time.Second)
+		results <- j * 2
+		fmt.Println("worker", id, "finished job:", j)
 	}
 }
+
+var numWorkers int
 
 //driver code
 func main() {
@@ -52,7 +36,8 @@ func main() {
 	fmt.Print("Enter number of workers: ")
 	text, _ := reader.ReadString('\n')
 	text = strings.Trim(text, "\r\n")
-	numWorkers, err := strconv.Atoi(text)
+	var err error
+	numWorkers, err = strconv.Atoi(text)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -60,29 +45,22 @@ func main() {
 
 	results := make(chan int, numWorkers) //канал для результатов
 	jobs := make(chan int, numWorkers)    //канал для работы
-	done := make(chan bool, numWorkers)   //канал для сообщении об окончании работы
 	var wg sync.WaitGroup
 	for w := 0; w < numWorkers; w++ { //создаем воркеры
 		wg.Add(1)
-		go worker(w, jobs, results, done, &wg)
+		go worker(w, jobs, results, &wg)
 	}
+	syncchan := make(chan bool, 1)
+
+	go MainCycle(jobs, results, syncchan)
+	wg.Wait()        // Когда Все воркеры отработали
+	syncchan <- true // Посылаем сигнал завершения
+}
+
+func MainCycle(jobs chan int, results chan int, syncchan chan bool) {
 	//канал для сигнала прерывания
 	osSignals := make(chan os.Signal, 1)
 	signal.Notify(osSignals, syscall.SIGINT, syscall.SIGTERM)
-
-	// конструкция ниже необходима потому, что, когда подается сигнал на завершение работы
-	// данные перестают поступать в канал jobs но, там какое-то
-	// количество все еще остается, и их надо обработать
-
-	//Но поскольку чтение из канала results происходит в гланом цикле,
-	//То может случится, что при получении сигнала окончании и обработки оставшихся работ
-	// канал results может оказаться полным, поэтому необходимо
-	// 1. дождаться всех результатов 2. Воркеры уменьшают счетчик wg 3. Посылаем сигнал в канал
-	syncchan := make(chan bool, 1)
-	go func() {
-		wg.Wait()
-		syncchan <- true
-	}()
 
 	//главный цикл
 	for {
@@ -91,12 +69,8 @@ func main() {
 		case t := <-results: //чтение результатов
 			fmt.Println(t)
 		case <-osSignals: //обработка сигнала прерывания
-
 			close(jobs)
 			fmt.Println("[!!!]Got signal, Processing")
-			for w := 0; w < numWorkers; w++ { //посылаем сигнал о завершении
-				done <- true
-			}
 			//дожидаемся оставшиеся результаты
 			for {
 				select {
