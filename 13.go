@@ -12,7 +12,7 @@ func main() {
 		go func(wg sync.WaitGroup, i int) {
 			fmt.Println(i)
 			wg.Done()
-		}(wg, i) // копирование wg в локально
+		}(wg, i) // копирование wg в локальную переменную
 	}
 	wg.Wait()
 	fmt.Println("exit")

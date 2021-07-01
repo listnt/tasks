@@ -9,11 +9,12 @@ import (
 
 func main() {
 	rand.Seed(time.Now().Unix())
-	n := rand.Intn(40) + 20
-	a := new(big.Int).SetBytes([]byte(RandStringBytes(n)))
+	n := rand.Intn(40) + 20                                // длина от 20 до 60
+	a := new(big.Int).SetBytes([]byte(RandStringBytes(n))) // случайный bigint
 	n = rand.Intn(40) + 20
-	b := new(big.Int).SetBytes([]byte(RandStringBytes(n)))
+	b := new(big.Int).SetBytes([]byte(RandStringBytes(n))) // случайный bigint
 
+	// Проводим операции
 	c := new(big.Int)
 	c.Add(a, b)
 	d := new(big.Int)
@@ -28,6 +29,7 @@ func main() {
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
+//генерация случайных строк
 func RandStringBytes(n int) string {
 	b := make([]byte, n)
 	for i := range b {

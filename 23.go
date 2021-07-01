@@ -7,6 +7,7 @@ import (
 const N = 10000
 const val = 200
 
+//код для проверки поиска
 func main() {
 	arr := make([]int, N)
 	for i := 0; i < N; i++ {
@@ -15,10 +16,11 @@ func main() {
 	fmt.Printf("found %d at %d", val, BinarySearch(arr, val))
 }
 
+//очередной бинарный поиск
 func BinarySearch(arr []int, key int) int {
 	l := 0
 	r := len(arr) - 1
-	m := l + (r-l)/2
+	m := l + (r-l)/2 //на случай переполнения
 	for l <= r {
 		m = l + (r-l)/2
 		if arr[m] == key {

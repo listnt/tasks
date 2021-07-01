@@ -1,12 +1,13 @@
 package main
 
-import "fmt"
+import (
+	"math/rand"
+)
 
 var justString string
 
 func someFunc() {
 	v := createHugeString(1 << 10)
-	fmt.Println(v)
 	justString = v[:100]
 }
 
@@ -14,7 +15,11 @@ func main() {
 	someFunc()
 }
 
-func createHugeString(a int) string {
-	s := make([]byte, a)
-	return string(s)
+func createHugeString(n int) string {
+	var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+	b := make([]rune, n)
+	for i := range b {
+		b[i] = letterRunes[rand.Intn(len(letterRunes))]
+	}
+	return string(b)
 }

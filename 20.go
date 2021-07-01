@@ -11,6 +11,6 @@ func main() {
 
 		slice[1] = "b"
 		fmt.Print(slice)
-	}(slice)
+	}(slice) //сохраняем адрес массива в локальную копию
 	fmt.Print(slice)
 }
