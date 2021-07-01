@@ -17,7 +17,7 @@ import (
 func worker(id int, jobs <-chan int, results chan<- int, wg *sync.WaitGroup) {
 	defer wg.Done() // уменьшаем счетчик на 1
 	for j := range jobs {
-		//обрабатываем работу
+		//опять работа
 		//some actions
 		fmt.Println("worker", id, "started  job:", j)
 		time.Sleep(time.Second)

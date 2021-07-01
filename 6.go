@@ -47,5 +47,20 @@ func main() {
 	time.Sleep(1 * time.Second)
 	quit <- true
 	// Метод для аверайдж го энджоера
+
 	//3-ий путь: не путю
+	wg.Add(1)
+	ch2 := make(chan int)
+	go func() {
+		defer wg.Done()
+		for i := range ch2 {
+			i++
+			//some stuff
+		}
+	}()
+	ch2 <- 1
+	ch2 <- 2
+	ch2 <- 3
+	close(ch2)
+	wg.Wait()
 }
