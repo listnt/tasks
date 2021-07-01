@@ -27,7 +27,6 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-
 	//проверка на уникальность символов в тексте
 	if checkUnique(text) {
 		os.Stdout.Write([]byte("Unique"))

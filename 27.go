@@ -14,6 +14,6 @@ func reverse(numbers []string) []string {
 
 func main() {
 	var str = "snow dog sun"
-	// обожаю one-liner
+	// обожаю one-liners
 	fmt.Println(strings.Join(reverse(strings.Split(str, " ")), " "))
 }
