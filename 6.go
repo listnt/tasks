@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"sync"
 	"time"
 )
@@ -55,7 +56,7 @@ func main() {
 		defer wg.Done()
 		for i := range ch2 {
 			i++
-			//some stuff
+			fmt.Printf("%d\n", i)
 		}
 	}()
 	ch2 <- 1
