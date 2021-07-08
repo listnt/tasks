@@ -6,14 +6,14 @@ import (
 )
 
 //constants: N-array size, numberOfGourutines=number threads
-var N = 1000
-var numberOfGourutines = 4
+var N = 10000
+var numberOfGourutines = 1
 
 //driver code
 func main() {
 	//объявление пременных
 	chunkSize := int(N / numberOfGourutines) // размер чанка данных
-	var chansize = 4
+	var chansize = numberOfGourutines
 	if i := N - chunkSize*numberOfGourutines; i > 0 {
 		//если есть отсаток от деления, то размер канала на 1 больше
 		//для дополнительной горутины
@@ -33,11 +33,11 @@ func main() {
 		go MyFunc(arr[chunkSize*numberOfGourutines:], ch)
 	}
 	var sum int
-	for i := 0; i < numberOfGourutines; i++ {
+	for i := 0; i < chansize; i++ {
 		sum += <-ch
 	}
 	//запись в поток
-	os.Stdout.Write([]byte(strconv.Itoa(sum)))
+	os.Stdout.Write([]byte("final sum: " + strconv.Itoa(sum) + "\n"))
 }
 
 // функция вычисляет сумму (элементы слайса в степени 2)
