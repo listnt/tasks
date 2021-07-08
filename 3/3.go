@@ -1,44 +1,45 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"strconv"
-	"time"
 )
 
-var N = 1000
-var numberOfGourutines = 4
+var N = 10000
+var numberOfGourutines = 1
 
 func main() {
-
-	st := time.Now()
-	ch := make(chan int, 4)
-	arr := make([]int64, N)
-	for i := 0; i < N; i++ {
-		arr[i] = int64((i + 1) * 2)
+	//объявление пременных
+	chunkSize := int(N / numberOfGourutines) // размер чанка данных
+	var chansize = numberOfGourutines
+	if i := N - chunkSize*numberOfGourutines; i > 0 {
+		//если есть отсаток от деления, то размер канала на 1 больше
+		//для дополнительной горутины
+		chansize++
 	}
-	chunkSize := int(N / numberOfGourutines)
+	ch := make(chan int, chansize) // канал для оповещении об окончании работы
+	arr := make([]int64, N)        // массив и его наполнение
+	for i := 0; i < N; i++ {
+		arr[i] = int64(i+1) * 2
+	}
 	for i := 0; i < numberOfGourutines; i++ {
+		//нарезаем массив на слайсы одинакового размера
 		go MyFunc(arr[chunkSize*i:chunkSize*(i+1)], ch)
 	}
 	if i := N - chunkSize*numberOfGourutines; i > 0 {
+		//Если есть остаток от деления, то выполняется дополнительная горутина на этот остаток
 		go MyFunc(arr[chunkSize*numberOfGourutines:], ch)
 	}
 	var sum int
-	for i := 0; i < numberOfGourutines; i++ {
+	for i := 0; i < chansize; i++ {
 		sum += <-ch
 	}
-	os.Stdout.Write([]byte(strconv.Itoa(sum)))
-
-	fmt.Printf("\n%d", (time.Now().Sub(st)).Milliseconds())
+	//запись в поток
+	os.Stdout.Write([]byte("final sum: " + strconv.Itoa(sum) + "\n"))
 }
 
 func MyFunc(input []int64, done chan int) {
-	a := len(input)
-	sum := int(VecSum(input[:int(a/4)*4]))
-	for i := int(a/4) * 4; i < a; i++ {
-		sum += int(input[i] * input[i])
-	}
+	sum := int(VecSum(input))
+	//fmt.Println(sum)
 	done <- sum
 }
