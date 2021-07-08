@@ -7,7 +7,7 @@ import (
 
 //constants: N-array size, numberOfGourutines=number threads
 var N = 10000
-var numberOfGourutines = 1
+var numberOfGourutines = 40
 
 //driver code
 func main() {

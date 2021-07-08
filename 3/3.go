@@ -6,7 +6,7 @@ import (
 )
 
 var N = 10000
-var numberOfGourutines = 1
+var numberOfGourutines = 40
 
 func main() {
 	//объявление пременных
